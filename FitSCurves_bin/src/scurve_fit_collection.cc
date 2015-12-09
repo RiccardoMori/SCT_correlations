@@ -189,8 +189,13 @@ public:
   const std::vector<double> &y;
   const std::vector<double> &N;
 };
+
+template <typename T, typename... Args> 
+T __check(Args&&... args);
+
+
 template <typename T>
-T& setBuffer(scurve_buffer&  inBuffer, T& task_) {
+auto setBuffer(scurve_buffer&  inBuffer, T& task_) -> decltype(__check<T&>(task_.buffer = &inBuffer)) {
   task_.buffer = &inBuffer;
   return task_;
 }
@@ -431,9 +436,12 @@ TASK_DEFINITION(removeElements& task_) {
 class stop_ {
 public:
   stop_() {}
-  scurve_buffer* buffer = nullptr;
+  
 };
-
+ template <typename T>
+ stop_& setBuffer(T&&, stop_& task_) {
+   return task_;
+ }
 returnTypes runTask(const stop_& task_) {
   RETURN_OK;
 }
