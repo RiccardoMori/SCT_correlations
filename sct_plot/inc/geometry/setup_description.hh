@@ -16,7 +16,7 @@ struct Xladder {
 public:
   Xladder(xml_n* n) :
 
-    ID(xml_util::getAtribute(n, "ID", ID)),
+    ID(xml_util::getAtribute(n, "ID", sct_corr_XML_ERROR_DEFAULT_VALUE)),
     positionX(xml_util::getAtribute(n, "positionX", sct_corr_XML_ERROR_DEFAULT_VALUE)),
     positionY(xml_util::getAtribute(n, "positionY", sct_corr_XML_ERROR_DEFAULT_VALUE)),
     positionZ(xml_util::getAtribute(n, "positionZ", sct_corr_XML_ERROR_DEFAULT_VALUE)),
@@ -26,9 +26,9 @@ public:
     rotationZY(xml_util::getAtribute(n, "rotationZY", sct_corr_XML_ERROR_DEFAULT_VALUE)),
 
 
-    sizeX(xml_util::getAtribute(n, "sizeX", sizeX)),
-    sizeY(xml_util::getAtribute(n, "sizeY", sizeY)),
-    thickness(xml_util::getAtribute(n, "thickness", thickness)) {
+    sizeX(xml_util::getAtribute(n, "sizeX", sct_corr_XML_ERROR_DEFAULT_VALUE)),
+    sizeY(xml_util::getAtribute(n, "sizeY", sct_corr_XML_ERROR_DEFAULT_VALUE)),
+    thickness(xml_util::getAtribute(n, "thickness", sct_corr_XML_ERROR_DEFAULT_VALUE)) {
   }
   double ID = sct_corr_XML_ERROR_DEFAULT_VALUE,
     positionX = sct_corr_XML_ERROR_DEFAULT_VALUE,
