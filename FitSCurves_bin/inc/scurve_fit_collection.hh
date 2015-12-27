@@ -28,6 +28,7 @@ class scurve_fit_collection {
 public:
   scurve_fit_collection(const char* outputFileName);
   void set_mpv_start_low_cut(double mpv_start_low_cut);
+  void set_number_of_min_events(int N_min);
   void setTree(TTree* tree);
   void setBeamRuns(TTree* noise);
   void setNoiseRun(TTree* hits);
@@ -49,8 +50,10 @@ public:
     m_start_gaus_sigma = 30,
     m_start_landau_sigma = 0.386907,
     m_gaus_sigma_lower_boundary = 10,
-    m_x_pos=0,
-    m_mpv_start_low_cut=280;
+    m_x_pos = 0,
+    m_mpv_start_low_cut = 280;
+
+   int  m_Number_of_min_events= 1000;
   output_data m_out_data;
   bool m_use_total_efficiency_fit_as_start = true;
 

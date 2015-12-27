@@ -95,7 +95,8 @@ int main(int argc, char **argv) {
     cmd.add(outFilename);
     ValueArg<double> MPV_arg("m", "mpv", "start value for the landau gauss fit", false, 80, "double");
     cmd.add(MPV_arg);
-
+    ValueArg<double> N_arg("n", "NumberOfElements", "The number of Events needed for the individual strips", false, 1000, "double");
+    cmd.add(N_arg);
     ValueArg<double> MPV_arg_lower_cut("c", "mpv_lower_cut", "lower cut for mpv value", false, 280, "double");
     cmd.add(MPV_arg_lower_cut);
 
@@ -139,6 +140,7 @@ int main(int argc, char **argv) {
       p.setBeamRuns(Hits);
     }
     p.set_mpv_start_low_cut(MPV_arg_lower_cut.getValue());
+    p.set_number_of_min_events(N_arg.getValue());
     p.setStartMPV(MPV_arg.getValue());
     gErrorIgnoreLevel = kError;  // ignoring root printouts (replace of histograms) 
     p.processTotal("total_efficiency:Threshold:error_efficiency");

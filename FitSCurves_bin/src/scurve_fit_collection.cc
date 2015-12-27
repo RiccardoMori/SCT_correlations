@@ -52,6 +52,10 @@ void scurve_fit_collection::set_mpv_start_low_cut(double mpv_start_low_cut) {
   m_mpv_start_low_cut = mpv_start_low_cut;
 }
 
+void scurve_fit_collection::set_number_of_min_events(int N_min) {
+  m_Number_of_min_events = N_min;
+}
+
 void scurve_fit_collection::setTree(TTree* tree) {
   m_tree = tree;
   m_tree_sc_curve = std::make_shared<getScurvesFromTTree>(tree);
@@ -451,9 +455,9 @@ void scurve_fit_collection::processStrip(const char* stripName, const std::vecto
   runTask(
     loop_over_scurves(*m_tree_sc_curve),
     print__(m_out),
-    filter_more_than(1000),
+    filter_more_than(m_Number_of_min_events),
     filter_max_occupancy_higher_than(0.5),
-    estimateStartValue(150),
+    estimateStartValue(m_start_mean),
     removeElements(ignoreIndex),
    // removeOutlier(0.1),
     fit_scurve(f),
