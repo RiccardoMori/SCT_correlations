@@ -39,43 +39,43 @@ namespace xmlImputFiles {
     }
     xml_globalConfig() {}
     std::string CollectionName() const {
-      return xml_util::getAtribute(m_node->first_node("CollectionName"), "value", "notSet");
+      return xml_util::getAtribute_string(m_node->first_node("CollectionName"), "value");
     }
     int NumberOfBins() const {
-      return xml_util::getAtribute(m_node->first_node("NumberOfBins"), "value", -1);
+      return xml_util::getAtribute<int>(m_node->first_node("NumberOfBins"), "value");
     }
     int NumberOfStrips() const {
-      return xml_util::getAtribute(m_node->first_node("NumberOfStrips"), "value", -1);
+      return xml_util::getAtribute<int>(m_node->first_node("NumberOfStrips"), "value");
     }
     const S_Cut& cut() const {
-      auto min_ = xml_util::getAtribute(m_node->first_node("YCut"), "min", -1);
-      auto max_ = xml_util::getAtribute(m_node->first_node("YCut"), "max", -1);
+      auto min_ = xml_util::getAtribute<Double_t>(m_node->first_node("YCut"), "min");
+      auto max_ = xml_util::getAtribute<Double_t>(m_node->first_node("YCut"), "max");
       m_cut = S_YCut(min_, max_);
       return  m_cut;
     }
     int Device() const {
-      return xml_util::getAtribute(m_node->first_node("Device"), "value", -1);
+      return xml_util::getAtribute<int>(m_node->first_node("Device"), "value");
     }
 
     intRange AvtiveStrips() const {
-      auto min_ = xml_util::getAtribute(m_node->first_node("AvtiveStrips"), "min", -1);
-      auto max_ = xml_util::getAtribute(m_node->first_node("AvtiveStrips"), "max", -1);
+      auto min_ = xml_util::getAtribute<int>(m_node->first_node("AvtiveStrips"), "min");
+      auto max_ = xml_util::getAtribute<int>(m_node->first_node("AvtiveStrips"), "max");
       return intRange(min_, max_);
     }
     double Rotation()const {
-      return xml_util::getAtribute(m_node->first_node("Rotation"), "value", 0.0);
+      return xml_util::getAtribute<double>(m_node->first_node("Rotation"), "value");
     }
     std::string Position_name()const {
-      return xml_util::getAtribute(m_node->first_node("Position"), "name", "notSet");
+      return xml_util::getAtribute_string(m_node->first_node("Position"), "name");
     }
     double Position_value()const {
-      return xml_util::getAtribute(m_node->first_node("Position"), "value", -1.0);
+      return xml_util::getAtribute<double>(m_node->first_node("Position"), "value");
     }
     double residual_cut() const {
-      return xml_util::getAtribute(m_node->first_node("residual_cut"), "value", 1000);
+      return xml_util::getAtribute<double>(m_node->first_node("residual_cut"), "value");
     }
     std::string gearFile() const {
-      return xml_util::getAtribute(m_node->first_node("gearFile"), "name", "notSet");
+      return xml_util::getAtribute_string(m_node->first_node("gearFile"), "name");
     }
   private:
     xml_n* m_node = nullptr;
@@ -92,16 +92,16 @@ namespace xmlImputFiles {
     }
     xml_file() {}
     std::string name() const {
-      return xml_util::getAtribute(m_node->first_node("name"), "value", "notSet");
+      return xml_util::getAtribute_string(m_node->first_node("name"), "value");
     }
     double threshold() const {
-      return xml_util::getAtribute(m_node->first_node("threshold"), "value", -1.0);
+      return xml_util::getAtribute<double>(m_node->first_node("threshold"), "value");
     }
     double HV() const {
-      return xml_util::getAtribute(m_node->first_node("HV"), "value", -1.0);
+      return xml_util::getAtribute<double>(m_node->first_node("HV"), "value");
     }
     int runNumber() const {
-      return xml_util::getAtribute(m_node->first_node("runNumber"), "value", -1);
+      return xml_util::getAtribute<int>(m_node->first_node("runNumber"), "value");
     }
   private:
     xml_n* m_node = nullptr;
