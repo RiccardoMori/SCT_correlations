@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RunCollection>
+  <globalConfig>
+    <CollectionName value="DEVICE_1_ASIC_on_Position_7_Jim_350V" />
+    <NumberOfBins value="400" />
+    <YCut min="-4" max="2" />
+    <Device value="1" />
+    <AvtiveStrips min="280" max="360" />
+    <Rotation value="0.0171112" />
+    <Position name="position 7" value="3.16097e+002" />
+    <residual_cut value="100" />
+  </globalConfig>
+  <fileList>
+    <file>
+      <name value="run000816-fitter.root" />
+      <threshold value="67.572" />
+      <runNumber value="816" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000818-fitter.root" />
+      <threshold value="67.572" />
+      <runNumber value="818" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000817-fitter.root" />
+      <threshold value="109.761" />
+      <runNumber value="817" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000703-fitter.root" />
+      <threshold value="151.636" />
+      <runNumber value="703" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000688-fitter.root" />
+      <threshold value="193.236" />
+      <runNumber value="688" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000689-fitter.root" />
+      <threshold value="234.633" />
+      <runNumber value="689" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000690-fitter.root" />
+      <threshold value="275.869" />
+      <runNumber value="690" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000691-fitter.root" />
+      <threshold value="316.946" />
+      <runNumber value="691" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000692-fitter.root" />
+      <threshold value="357.780" />
+      <runNumber value="692" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000693-fitter.root" />
+      <threshold value="397.827" />
+      <runNumber value="693" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000694-fitter.root" />
+      <threshold value="435.768" />
+      <runNumber value="694" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000695-fitter.root" />
+      <threshold value="471.152" />
+      <runNumber value="695" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000696-fitter.root" />
+      <threshold value="503.997" />
+      <runNumber value="696" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000702-fitter.root" />
+      <threshold value="533.121" />
+      <runNumber value="702" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000698-fitter.root" />
+      <threshold value="555.938" />
+      <runNumber value="698" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000699-fitter.root" />
+      <threshold value="572.388" />
+      <runNumber value="699" />
+      <HV value="350" />
+    </file>
+    <file>
+      <name value="run000701-fitter.root" />
+      <threshold value="584.559" />
+      <runNumber value="701" />
+      <HV value="350" />
+    </file>
+  </fileList>
+</RunCollection>

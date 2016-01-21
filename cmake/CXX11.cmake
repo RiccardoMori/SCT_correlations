@@ -66,10 +66,7 @@ macro(enable_cxx11)
     
     # and clang needs additional flags
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-      check_cxx_accepts_flag("-stdlib=libc++" CXX_FLAG_LIBCXX)
-      IF(CXX_FLAG_LIBCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-      ENDIF(CXX_FLAG_LIBCXX)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
     endif()
 
   ELSEIF(MSVC)

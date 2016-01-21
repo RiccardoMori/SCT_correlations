@@ -29,14 +29,10 @@ FIND_PROGRAM(ROOT_CONFIG_EXECUTABLE NAMES root-config PATHS
    ${ROOT_CONFIG_SEARCHPATH}
    NO_DEFAULT_PATH)
     
- IF (${ROOT_CONFIG_EXECUTABLE} MATCHES "ROOT_CONFIG_EXECUTABLE-NOTFOUND")
-   IF (ROOT_FIND_REQUIRED)
-     MESSAGE( FATAL_ERROR "ROOT not installed in the searchpath and ROOTSYS is not set. Please
+IF (${ROOT_CONFIG_EXECUTABLE} MATCHES "ROOT_CONFIG_EXECUTABLE-NOTFOUND")
+  MESSAGE( FATAL_ERROR "ROOT not installed in the searchpath and ROOTSYS is not set. Please
  set ROOTSYS or add the path to your ROOT installation in the Macro FindROOT.cmake in the
  subdirectory cmake/modules.")
-   ELSE(ROOT_FIND_REQUIRED)
-     MESSAGE( STATUS "Could not find ROOT.")
-   ENDIF(ROOT_FIND_REQUIRED)
 ELSE (${ROOT_CONFIG_EXECUTABLE} MATCHES "ROOT_CONFIG_EXECUTABLE-NOTFOUND")
   STRING(REGEX REPLACE "(^.*)/bin/root-config" "\\1" test ${ROOT_CONFIG_EXECUTABLE}) 
   SET( ENV{ROOTSYS} ${test})
@@ -87,13 +83,9 @@ ELSE(WIN32)
     STRING(REGEX REPLACE "^[0-9]+\\.[0-9][0-9]+\\/([0-9][0-9]+).*" "\\1" found_root_patch_vers "${ROOTVERSION}")
 
     IF (found_root_major_vers LESS 5)
-      MESSAGE( FATAL_ERROR "Invalid ROOT version \"${ROOTVERSION}\", at least major version 4 is required, e.g. \"5.00/00\"")
+      MESSAGE( FATAL_ERROR "Invalid ROOT version \"${ROOTERSION}\", at least major version 4 is required, e.g. \"5.00/00\"")
     ENDIF (found_root_major_vers LESS 5)
 
-    IF (found_root_major_vers EQUAL 6)
-      add_definitions(-DEUDAQ_LIB_ROOT6)
-    ENDIF (found_root_major_vers EQUAL 6)
-    
     # compute an overall version number which can be compared at once
     MATH(EXPR req_vers "${req_root_major_vers}*10000 + ${req_root_minor_vers}*100 + ${req_root_patch_vers}")
     MATH(EXPR found_vers "${found_root_major_vers}*10000 + ${found_root_minor_vers}*100 + ${found_root_patch_vers}")
@@ -109,7 +101,7 @@ ELSE(WIN32)
 
 
   IF (ROOT_FOUND)
-    
+
     # ask root-config for the library dir
     # Set ROOT_LIBRARY_DIR
 
@@ -209,20 +201,18 @@ MACRO (ROOT_GENERATE_DICTIONARY_OLD )
      
    endforeach (_current_FILE ${ARGN})
    
-#  MESSAGE("INFILES: ${INFILES}")
-#  MESSAGE("OutFILE: ${OUTFILE}")
-#  MESSAGE("LINKDEF_FILE: ${LINKDEF_FILE}")
-#  MESSAGE("INCLUDE_DIRS: ${INCLUDE_DIRS}")
+
 
    STRING(REGEX REPLACE "(^.*).cxx" "\\1.h" bla "${OUTFILE}")
-#   MESSAGE("BLA: ${bla}")
-   SET (OUTFILES ${OUTFILE} ${bla})
 
+   SET (OUTFILES ${OUTFILE} ${bla})
+  
+  message("${ROOT_CINT_EXECUTABLE} -f ${OUTFILE} -c -p -DHAVE_CONFIG_H ${INCLUDE_DIRS} ${INFILES} ${LINKDEF_FILE} ")
    ADD_CUSTOM_COMMAND(OUTPUT ${OUTFILES}
       COMMAND ${ROOT_CINT_EXECUTABLE}
       ARGS -f ${OUTFILE} -c -p -DHAVE_CONFIG_H ${INCLUDE_DIRS} ${INFILES} ${LINKDEF_FILE} )
 
-#   MESSAGE("ROOT_CINT_EXECUTABLE has created the dictionary ${OUTFILE}")
+  
 
 ENDMACRO (ROOT_GENERATE_DICTIONARY_OLD)
 
