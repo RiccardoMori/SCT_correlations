@@ -1,0 +1,101 @@
+<<<<<<< HEAD
+# Ignore binaries:
+bin/*
+
+# Ignore libraries:
+lib/*
+
+# Ignore data files:
+*.raw
+*.raw2
+*.idx
+*.dat
+
+# ignore everything in logs
+logs/*
+
+# ignore log files
+*.log
+
+# ignore everything in conf:
+conf/*
+
+# ignore ROOT files
+*.root
+
+# ignore emacs autosaves
+\#*#
+*~
+
+# ignore hidden files:
+.*
+
+# ignore git mergetool backup files
+*.orig
+
+# ignore eclipse project files
+.project
+.cproject
+
+# Ignore binary data file folders downloaded for TLU producer:
+extern/ZestSC1
+extern/tlufirmware
+
+# Ignore paths to windows libraries installed by user:
+extern/pthread*
+extern/libusb*
+
+
+#ignore debug folder
+debug/*
+
+# ignore python byte code
+*.pyc
+
+# ignore MSVC files
+*.vcxproj*
+
+# ignore archives
+*.zip
+*.rar
+*.7z
+*.gz
+*.tar*
+
+# ignore OS files
+Thumbs.db
+*.lnk
+=======
+
+#ignore thumbnails created by windows
+Thumbs.db
+#Ignore files build by Visual Studio
+*.obj
+*.exe
+*.pdb
+*.user
+*.aps
+*.pch
+*.vspscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+[Bb]in
+[Dd]ebug*/
+*.lib
+*.sbr
+obj/
+[Rr]elease*/
+_ReSharper*/
+[Tt]est[Rr]esult*
+extern/*
+*.root
+cBuild/*
+>>>>>>> c0086ba7a674917684393a1b4e7ac2066e92bba1
