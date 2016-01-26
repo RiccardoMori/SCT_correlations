@@ -693,7 +693,13 @@ bool s_process_collection_standard::process_file(FileProberties* fileP) {
 
 
 s_process_collection_standard::s_process_collection_standard(Parameter_ref) {
+   
+
+  if (m_dummy) {
+    delete m_dummy;
+  }
   m_dummy = new TFile("dummy1.root", "recreate");
+ 
   if (!m_dummy->IsOpen()) {
     SCT_THROW("unable to open file: dummy1.root");
   }
@@ -790,7 +796,7 @@ Long64_t s_process_collection_standard::DrawResidualVsMissingCordinate(Double_t 
     .output_object(m_resVSMissing.get())
     .opt_colz()
     );
-  auto f = new TF1(SCT_helpers::LinearFit_Of_Profile(m_resVSMissing.get(), sct_type::procent_t(0)));
+  m_fit = std::make_shared<TF1>(SCT_helpers::LinearFit_Of_Profile(m_resVSMissing.get(), sct_type::procent_t(0)));
   //   std::cout << f->GetParameter("p1") << std::endl;
   //   std::cout << f->GetParameter("p0") << std::endl;
   m_plotCollection->Draw(
@@ -802,7 +808,7 @@ Long64_t s_process_collection_standard::DrawResidualVsMissingCordinate(Double_t 
     .opt_colz()
     );
 
-  f->Draw("same");
+  m_fit->Draw("same");
 
   return ret;
 }
