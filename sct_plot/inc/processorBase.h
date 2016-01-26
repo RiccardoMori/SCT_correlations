@@ -31,6 +31,8 @@ class fitter_file;
 namespace xmlImputFiles {
 class XML_imput_file;
 }
+
+class TF1;
 class FileProberties {
 public:
   TFile* getTfile() const;
@@ -237,7 +239,7 @@ private:
   std::shared_ptr<sct_corr::plot_collection> m_plotCollection;
   std::shared_ptr <sct_files::fitter_file> m_file_fitter;
   TFile* m_dummy = nullptr;
-
+  std::shared_ptr<TF1> m_fit;
 
 };
 
