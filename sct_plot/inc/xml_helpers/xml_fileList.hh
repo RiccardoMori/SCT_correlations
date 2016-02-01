@@ -48,9 +48,11 @@ namespace xmlImputFiles {
       return xml_util::getAtribute<int>(m_node->first_node("NumberOfStrips"), "value");
     }
     const S_Cut& cut() const {
-      auto min_ = xml_util::getAtribute<Double_t>(m_node->first_node("YCut"), "min");
-      auto max_ = xml_util::getAtribute<Double_t>(m_node->first_node("YCut"), "max");
-      m_cut = S_YCut(min_, max_);
+      auto ymin_ = xml_util::getAtribute<Double_t>(m_node->first_node("YCut"), "min");
+      auto ymax_ = xml_util::getAtribute<Double_t>(m_node->first_node("YCut"), "max");
+      auto xmin_ = xml_util::getAtribute<Double_t>(m_node->first_node("XCut"), "min");
+      auto xmax_ = xml_util::getAtribute<Double_t>(m_node->first_node("XCut"), "max");
+      m_cut = S_YCut(ymin_, ymax_) + S_XCut(xmin_, xmax_);
       return  m_cut;
     }
     int Device() const {
@@ -79,7 +81,7 @@ namespace xmlImputFiles {
     }
   private:
     xml_n* m_node = nullptr;
-    mutable  S_YCut m_cut = S_YCut(-10000000, 100000000000);
+    mutable  S_CutCoollection m_cut = S_YCut(-10000000, 100000000000)+S_XCut(-10000,10000);
   };
   class xml_file {
   public:
