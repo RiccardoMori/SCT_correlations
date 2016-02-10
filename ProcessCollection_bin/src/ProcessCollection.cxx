@@ -68,6 +68,7 @@ int asyncMain(void *arg) {
 
     p->Add_XML_RunList(FileNameArg.getValue(), inPath.getValue(), outpath.getValue());
     p->setPrintout(true);
+
     p->process();
   } catch (ArgException &e)  // catch any exceptions
   {

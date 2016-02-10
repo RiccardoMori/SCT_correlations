@@ -3,7 +3,9 @@
 #include "Rtypes.h"
 #include "internal/platform.hh"
 #include "TH1.h"
-
+#include "TLine.h"
+#include "TObject.h"
+#include "TSystem.h"
 
 #include <memory>
 #include "s_plot_collection.h"
@@ -49,6 +51,7 @@ private:
 
 #include "TTree.h"
 #include "TH2.h"
+#include "TMath.h"
 
 namespace sct_corr {
 
@@ -165,7 +168,7 @@ public:
   const xmlImputFiles::XML_imput_file* get_xml_input() const;
   const sct_corr::Xgear* get_gear() const;
 protected:
-  sct_corr::rootEventRunOutput m_outputl;
+	sct_corr::rootEventRunOutput m_outputl;
   std::shared_ptr<sct_corr::treeCollection_ouput> m_outputTree;
   sct_corr::sct_event_buffer m_buffer;
 private:
@@ -178,20 +181,13 @@ private:
 
   std::shared_ptr<sct_corr::Xgear> m_gear;
 
+  std::vector<FileProberties> m_files;
 
   void start_collection(output_TFile_ptr file__) ;
   virtual  bool process_file(FileProberties* fileP) = 0;
   virtual void end_collection() {}
 
-
-  std::vector<FileProberties> m_files;
-
-
-
   std::string m_outname;
-
-
-
 
 };
 }
@@ -219,9 +215,7 @@ private:
   void extract_residual();
   void extract_rotation();
   void process_reset();
-
-
-
+  
   virtual std::string get_suffix() const override;
 
 
@@ -273,6 +267,162 @@ private:
   std::shared_ptr<sct_corr::inStripClusterSize> m_instripClusterSize;
   std::shared_ptr<sct_corr::residual_efficienct> m_residualEffieciency;
 };
+////////////////////////////////////////////////////////////////////////////////////////////Riccardo////////////////////////////////////////////////////////////////////////////
+class DllExport s_process_collection_centering : public sct_corr::processorBase {
+public:
+	s_process_collection_centering(Parameter_ref par);
+	virtual ~s_process_collection_centering();
+
+	virtual void saveHistograms(TFile* outPutFile = nullptr, xmlImputFiles::MinMaxRange<double>* residual_cut = nullptr) override;
+private:
+
+	virtual std::string get_suffix() const override;
+	virtual  bool process_file(FileProberties* fileP) override;
+	bool isMasked(int channel);
+
+	TFile* m_dummy = nullptr;
+
+	std::shared_ptr<sct_corr::plot_collection> m_plotCollection;
+	std::shared_ptr<sct_files::fitter_file> m_file_fitter;
+
+	// Geometrical variables
+	double x_seedcenter = 0;
+	int stripref = 0;
+	double p = 0.0745;	// pitch [mm]		// TO DO: read from gear the pitch
+	double Dx = 0.005;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double xmin = -10;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double xmax = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double Dy = 1;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double ymin = -5;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double ymax = 5;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double XCutmin = -5.5;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double XCutmax = 0.1;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double YCutmin = -3.;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double YCutmax = 3.;// gbl max y for histos [mm] // TO DO: insert in xml file
+	std::vector<int> Mask;
+	double alpha_deg = 360 - 0.26; //angle of DUT strips vs. Mimosa/Track reference frame 0.26	// TO DO: read from gear
+	double alpha = TMath::Pi() * alpha_deg / 180;
+	// Histos for output
+	TH2D *hcentering = nullptr;
+	TF1*stripGauss = nullptr;
+
+};
+
+class DllExport s_process_collection_modulo_forPositions : public sct_corr::processorBase {
+public:
+	s_process_collection_modulo_forPositions(Parameter_ref par);
+	virtual ~s_process_collection_modulo_forPositions();
+
+	virtual void saveHistograms(TFile* outPutFile = nullptr, xmlImputFiles::MinMaxRange<double>* residual_cut = nullptr) override;
+private:
+
+	virtual std::string get_suffix() const override;
+	virtual  bool process_file(FileProberties* fileP) override;
+	bool isMasked(int channel);
+
+	TFile* m_dummy = nullptr;
+
+	std::shared_ptr<sct_corr::plot_collection> m_plotCollection;
+	std::shared_ptr<sct_files::fitter_file> m_file_fitter;
+
+	// Geometrical variables
+	double Dxcentering =0;
+	double p = 0.0745;	// pitch [mm]		// TO DO: read from gear the pitch
+	double Dx = 0.005;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double xmin = -10;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double xmax = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double xmin_corr = -15;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double xmax_corr = 15;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double Dy = 1;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double ymin = -6;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double ymax = 6;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double XCutmin = -4.5;// gbl min x for histos [mm] // TO DO: insert in xml file NARROWER THAN STRIP CUT BETTER
+	double XCutmax = -0.5;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double YCutmin = -4.;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double YCutmax = +3.;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double min_threshold = 0;		// TO DO: insert in xml file
+	double max_threshold = 250;		// TO DO: insert in xml file
+	std::vector<int> Mask;
+	struct  corr { int corrrun, n_correntries;};
+	std::vector<corr> Corr;
+	struct  centering { int stripref; double x_seedcenter; };
+	std::vector<centering> Centering;
+	int N_thresholdbins = 250;		// TO DO: insert in xml file
+	double alpha_deg = 360 - 0.26; //angle of DUT strips vs. Mimosa/Track reference frame 0.26	// TO DO: read from gear
+	double alpha = TMath::Pi() * alpha_deg / 180;
+	TTree* t_correlated_events_temp = nullptr;
+	// Histos for output
+	TH2D* h_neighbleft = nullptr;
+	TH2D* h_seed = nullptr;
+	TH2D* h_neighbright = nullptr;
+	TH2D* h_hitx = nullptr;
+	TH2D* h_neighbleft_eff = nullptr;
+	TH2D* h_seed_eff = nullptr;
+	TH2D* h_neighbright_eff = nullptr;
+	TH2D* h_hitmap_DUT = nullptr;
+	TH2D* h_hitmap_m26 = nullptr;
+	TH2D* h_hitmap_DUT_multiple = nullptr;
+	TH2D* h_hitmap_losthits = nullptr;
+
+};
+
+class DllExport s_process_collection_correlation_check : public sct_corr::processorBase {
+public:
+	s_process_collection_correlation_check(Parameter_ref par);
+	virtual ~s_process_collection_correlation_check();
+
+	virtual void saveHistograms(TFile* outPutFile = nullptr, xmlImputFiles::MinMaxRange<double>* residual_cut = nullptr) override;
+private:
+
+	virtual std::string get_suffix() const override;
+	virtual  bool process_file(FileProberties* fileP) override;
+	bool isMasked(int channel);
+
+	TFile* m_dummy = nullptr;
+
+	std::shared_ptr<sct_corr::plot_collection> m_plotCollection;
+	std::shared_ptr<sct_files::fitter_file> m_file_fitter;
+
+	// Geometrical variables
+	double Dxcentering = 0;
+	double p = 0.0745;	// pitch [mm]		// TO DO: read from gear the pitch
+	double Dx = 0.005;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double xmin = -10;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double xmax = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double xmin_corr = -10;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double xmax_corr = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double Dy = 1;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double ymin = -5;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double ymax = 5;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double XCutmin = -5.5;// gbl min x for histos [mm] // TO DO: insert in xml file
+	double XCutmax = 0.1;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double YCutmin = -3.;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double YCutmax = 3.;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double min_threshold = 0;		// TO DO: insert in xml file
+	double max_threshold = 250;		// TO DO: insert in xml file
+	std::vector<int> Mask;
+	struct  centering { int stripref; double x_seedcenter; };
+	std::vector<centering> Centering;
+	int N_thresholdbins = 250;		// TO DO: insert in xml file
+	double alpha_deg = 360 - 0.26; //angle of DUT strips vs. Mimosa/Track reference frame 0.26	// TO DO: read from gear
+	double alpha = TMath::Pi() * alpha_deg / 180;
+	int Nslot = 1500;	// events in a slot for evaluating the correlation
+	int max_correvent = 0;
+	int run = 0;
+	double sigma_max = 3 * p;
+
+	// Histos for check the correlation
+	TH2D *h_corr_DUT = nullptr;
+	TH2D *h_corr_m26 = nullptr;
+	TH2D *h_corr = nullptr;
+	TH2D *h_corr2 = nullptr;
+	TF1* corrGauss = nullptr;
+	// Output
+	TTree *treeout;
+
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 class DllExport s_process_collection_modulo_ex : public sct_corr::processorBase {
 public:
@@ -285,9 +435,7 @@ private:
   virtual std::string get_suffix() const override;
 
   virtual  bool process_file(FileProberties* fileP) override;
-
-
-
+  
   TFile* m_dummy = nullptr;
 
   s_plane_collection_correlations m_gbl_collection;
