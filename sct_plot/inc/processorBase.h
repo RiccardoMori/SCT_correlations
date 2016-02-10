@@ -53,6 +53,7 @@ private:
 #include "TH2.h"
 #include "TMath.h"
 
+class TF1;
 namespace sct_corr {
 
 

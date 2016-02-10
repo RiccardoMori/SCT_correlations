@@ -697,7 +697,9 @@ s_process_collection_standard::s_process_collection_standard(Parameter_ref) {
 	if (m_dummy){
 		delete m_dummy;
 	}
+  }
 	m_dummy = new TFile("dummy1.root", "recreate");
+ 
   if (!m_dummy->IsOpen()) {
     SCT_THROW("unable to open file: dummy1.root");
   }

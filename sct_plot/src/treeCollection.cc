@@ -142,6 +142,10 @@ namespace sct_corr{
 
   treeCollection_ouput::~treeCollection_ouput()
   {
+    if (m_tree) {
+      m_tree->Reset();
+      delete m_tree;
+      m_tree = nullptr;
 
 	  if (m_tree)
 	  {	
