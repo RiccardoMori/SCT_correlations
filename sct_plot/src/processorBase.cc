@@ -697,8 +697,7 @@ s_process_collection_standard::s_process_collection_standard(Parameter_ref) {
 	if (m_dummy){
 		delete m_dummy;
 	}
-  }
-	m_dummy = new TFile("dummy1.root", "recreate");
+ 	m_dummy = new TFile("dummy1.root", "recreate");
  
   if (!m_dummy->IsOpen()) {
     SCT_THROW("unable to open file: dummy1.root");
@@ -1586,6 +1585,17 @@ bool s_process_collection_centering::process_file(FileProberties* fileP) {
 	tree2->SetBranchAddress("theta", &theta);
 	int n_entries = tree->GetEntries();
 	int n_entries2 = tree2->GetEntries();
+	// FEi4
+	TTree *tree3 = (TTree*)fileP->getTfile()->Get("zsdata_apix");
+	std::vector<double > *ID3 = 0;
+	std::vector<double > *x3 = 0;
+	std::vector<double > *y3 = 0;
+	Int_t event_nr3 = 0;
+	tree3->SetBranchAddress("ID", &ID3);
+	tree3->SetBranchAddress("x", &x3);
+	tree3->SetBranchAddress("y", &y3);
+	tree3->SetBranchAddress("event_nr", &event_nr3);
+	int n_entries3 = tree3->GetEntries();
 
 	auto ActiveStrips = get_xml_input()->globalConfig().AvtiveStrips();
 
@@ -1604,6 +1614,9 @@ bool s_process_collection_centering::process_file(FileProberties* fileP) {
 			continue;
 		tree2->GetEntry(i);
 		if (x2->size() == 0)
+			continue;
+		tree3->GetEntry(i);
+		if (x3->size() == 0)
 			continue;
 		while (ID->at(0) != ID2->at(plane))
 			plane++;
@@ -1723,17 +1736,45 @@ s_process_collection_modulo_forPositions::s_process_collection_modulo_forPositio
 	t_correlated_events->Print();
 	t_correlated_events->Write();
 
-	h_neighbleft = new TH2D("Reb_hits_in_x_neighbleft_occupancy", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), left neighbour, occupancy", (int) (6*p/Dx)+1, -3*p, +3*p,N_thresholdbins,min_threshold,max_threshold);
-	h_neighbright = new TH2D("Reb_hits_in_x_neighbright_occupancy", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), right neighbour, occupancy", (int)(6 * p / Dx) + 1, -3*p, +3*p, N_thresholdbins, min_threshold, max_threshold);
-	h_seed = new TH2D("Reb_hits_in_x_seed_occupancy", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), seed, occupancy", (int)(6* p / Dx) + 1, -3*p, +3*p, N_thresholdbins, min_threshold, max_threshold);
-	h_neighbleft_eff = new TH2D("Reb_hits_in_x_neighbleft_efficiency", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), left neighbour, efficiency", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
-	h_neighbright_eff = new TH2D("Reb_hits_in_x_neighbright_efficiency", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), right neighbout, efficiency", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
-	h_seed_eff = new TH2D("Reb_hits_in_x_seed_efficiency", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), seed, efficiency", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
-	h_hitx = new TH2D("Hits_in_x", "Summed Hitmap of every 3*74.5=223.5um in x; x in mm (Resolution 5um), total", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
-	h_hitmap_DUT = new TH2D("h_hitmap_DUT", "Hitmap on DUT", (int)((xmax-xmin)/ Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
-	h_hitmap_DUT_multiple = new TH2D("h_hitmap_DUT_multiple", "Hitmap on DUT with multiplicity", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
-	h_hitmap_m26 = new TH2D("h_hitmap_m26", "hitmap on mimosa", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
-	h_hitmap_losthits = new TH2D("h_hitmap_losthits", "Hitmap of lost hits", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
+	h_neighbleft = new TH2D("h_neighbleft", "h_neighbleft", (int) (6*p/Dx)+1, -3*p, +3*p,N_thresholdbins,min_threshold,max_threshold);
+	h_neighbright = new TH2D("h_neighbright", "h_neighbright", (int)(6 * p / Dx) + 1, -3*p, +3*p, N_thresholdbins, min_threshold, max_threshold);
+	h_seed = new TH2D("h_seed", "h_seed", (int)(6* p / Dx) + 1, -3*p, +3*p, N_thresholdbins, min_threshold, max_threshold);
+	h_triplet = new TH2D("h_triplet", "h_triplet", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_triplet_eff = new TH2D("h_triplet_eff", "h_triplet_eff", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_mod1 = new TH2D("h_mod1", "h_mod1", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_clu = new TH2D("h_clu", "h_clu", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, 5, 0, 5);
+	h_neighbleft_eff = new TH2D("h_neighbleft_eff","h_neighbleft_eff", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_neighbright_eff = new TH2D("h_neighbright_eff", "h_neighbright_eff", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_seed_eff = new TH2D("h_seed_eff", "h_seed_eff", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_seed_eff_interp1 = new TH2D("h_seed_eff_interp1", "h_seed_eff_interp1", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_seed_eff_interp1filt = new TH2D("h_seed_eff_interp1filt", "h_seed_eff_interp1filt", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_mod1_eff = new TH2D("h_mod1_eff", "h_mod1_eff", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_clustered_left = new TH2D("h_clustered_left", "h_clustered_left", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, 2 * N_thresholdbins, min_threshold, 2 * max_threshold);
+	h_clustered = new TH2D("h_clustered", "h_clustered", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, 2*N_thresholdbins, min_threshold, 2*max_threshold);
+	h_distr_neighbleft = new TH2D("h_distr_neighbleft", "h_distr_neighbleft", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_distr_neighbright = new TH2D("h_distr_neighbright", "h_distr_neighbright", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_distr_seed = new TH2D("h_distr_seed", "h_distr_seed", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_distr_filt = new TH2D("h_distr_filt", "h_distr_filt", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_distr_mod1 = new TH2D("h_distr_seed", "h_distr_seed", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_hitx = new TH2D("h_hitx", "h_hitx", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_mod1_hitx = new TH2D("h_mod1_hitx", "h_mod1_hitx", (int)(6 * p / Dx) + 1, -3 * p, +3 * p, N_thresholdbins, min_threshold, max_threshold);
+	h_hitmap_DUT = new TH2D("h_hitmap_DUT", "h_hitmap_DUT", (int)((xmax-xmin)/ Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
+	h_hitmap_DUT_multiple = new TH2D("h_hitmap_DUT_multiple", "h_hitmap_DUT_multiple", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
+	h_hitmap_m26 = new TH2D("h_hitmap_m26", "h_hitmap_m26", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
+	h_hitmap_losthits = new TH2D("h_hitmap_losthits", "h_hitmap_losthits", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, (int)((ymax - ymin) / Dx) + 1, ymin, ymax);
+	h_TOTTracks = new TH1D("h_TOTTracks", "h_TOTTracks", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTTracks_unmask = new TH1D("h_TOTTracks_unmask", "h_TOTTracks_unmask", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTOccupancy = new TH1D("h_TOTOccupancy", "h_TOTOccupancy", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTOccupancy_unmask = new TH1D("h_TOTOccupancy_unmask", "h_TOTOccupancy_unmask", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTScurve = new TH1D("h_TOTScurve", "h_TOTScurve", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTScurve_unmask = new TH1D("h_TOTScurve_unmask", "h_TOTScurve_unmask", N_thresholdbins, min_threshold, max_threshold);
+	h_distr = new TH1D("h_distr", "h_distr", N_thresholdbins, min_threshold, max_threshold);
+
+	char c[128];
+	sprintf(c,"strip Of Interest= %d",stripOI);
+	h_stripOI = new TH2D("h_stripOI", c, (int)((xmax - xmin) / Dx) + 1, xmin, xmax, N_thresholdbins, min_threshold, max_threshold);
+	h_stripOI_eff = new TH2D("h_stripOI_eff", "h_stripOI_eff", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, N_thresholdbins, min_threshold, max_threshold);
+	h_strips_hitx = new TH2D("h_strips_hitx", "h_strips_hitx", (int)((xmax - xmin) / Dx) + 1, xmin, xmax, N_thresholdbins, min_threshold, max_threshold);
 
 	Mask.push_back(785);	// TO DO: read from gear
 	Mask.push_back(784);	// TO DO: read from gear
@@ -1770,11 +1811,12 @@ bool s_process_collection_modulo_forPositions::process_file(FileProberties* file
 	h_hitmap_DUT_multiple->Reset();
 	h_hitmap_m26->Reset();
 	h_hitmap_losthits->Reset();
+	h_clu->Reset();
 
 	FILE *filetxt;
 	char temp[128];
-	sprintf(temp,"tracks_%d.txt",(int)fileP->m_runNumber);
-	filetxt=fopen(temp,"w");
+	sprintf(temp, "tracks_%d.txt", (int)fileP->m_runNumber);
+	filetxt = fopen(temp, "w");
 	TTree *tree = (TTree*)fileP->getTfile()->Get("zsdata_strip");
 	TTree *tree2 = (TTree*)fileP->getTfile()->Get("GBL_tracks");
 	std::vector<double > *ID = 0;
@@ -1806,29 +1848,42 @@ bool s_process_collection_modulo_forPositions::process_file(FileProberties* file
 	tree2->SetBranchAddress("theta", &theta);
 	int n_entries = tree->GetEntries();
 	int n_entries2 = tree2->GetEntries();
-/*
-	TTree *t_correlated_events = new TTree();
-	t_correlated_events = (TTree*)m_dummy->Get("correlated_events");
-	int run= 0;
-	int max_correvent = 0;
-	t_correlated_events->SetBranchAddress("run", &run);
-	t_correlated_events->SetBranchAddress("max_correvent", &max_correvent);
-	for (int i = 0;i < t_correlated_events->GetEntries();i++) {
-		t_correlated_events->GetEntry(i);
-		if (run == (int)fileP->m_runNumber) {
-			n_entries = max_correvent;
-			break;
+	// FEi4
+	TTree *tree3 = (TTree*)fileP->getTfile()->Get("zsdata_apix");
+	std::vector<double > *ID3 = 0;
+	std::vector<double > *x3 = 0;
+	std::vector<double > *y3 = 0;
+	Int_t event_nr3 = 0;
+	tree3->SetBranchAddress("ID", &ID3);
+	tree3->SetBranchAddress("x", &x3);
+	tree3->SetBranchAddress("y", &y3);
+	tree3->SetBranchAddress("event_nr", &event_nr3);
+	int n_entries3 = tree3->GetEntries();
+
+
+	/*
+		TTree *t_correlated_events = new TTree();
+		t_correlated_events = (TTree*)m_dummy->Get("correlated_events");
+		int run= 0;
+		int max_correvent = 0;
+		t_correlated_events->SetBranchAddress("run", &run);
+		t_correlated_events->SetBranchAddress("max_correvent", &max_correvent);
+		for (int i = 0;i < t_correlated_events->GetEntries();i++) {
+			t_correlated_events->GetEntry(i);
+			if (run == (int)fileP->m_runNumber) {
+				n_entries = max_correvent;
+				break;
+			}
 		}
-	}
-	*/
+		*/
 	for (int i = 0;i < Corr.size();i++) {
-		if (Corr.at(i).corrrun== (int)fileP->m_runNumber) {
+		if (Corr.at(i).corrrun == (int)fileP->m_runNumber) {
 			n_entries = Corr.at(i).n_correntries;
 			break;
 		}
 	}
 
-printf("- Max correlated events for run %d = %d.\n", (int)fileP->m_runNumber, n_entries);
+	printf("- Max correlated events for run %d = %d.\n", (int)fileP->m_runNumber, n_entries);
 
 	auto ActiveStrips = get_xml_input()->globalConfig().AvtiveStrips();
 
@@ -1837,85 +1892,320 @@ printf("- Max correlated events for run %d = %d.\n", (int)fileP->m_runNumber, n_
 	double tiltedpos_x, tiltedpos_y;
 	int closest_strip;
 	double d;
+	int n_tracks = 0;
+	int n_hits = 0;
+	int n_tracks_unmask = 0;
+	int n_hits_unmask = 0;
 
 	// Modulo 3
 	for (int i = 0; i < n_entries; i++) {
 		tree->GetEntry(i);
-		plane = 0;
-		if (x->size() == 0)
-			continue;
 		tree2->GetEntry(i);
+		tree3->GetEntry(i);
+		//		if (x->size() == 0)
+		//			continue;
 		if (x2->size() == 0)
 			continue;
-		while (ID->at(0) != ID2->at(plane))
+		if (x3->size() == 0)
+			continue;
+
+		plane = 0;
+		while (ID2->at(plane) != 8)
 			plane++;
+
 		tiltedpos_x = (TMath::Cos(alpha) * x2->at(plane)) - (TMath::Sin(alpha) * y2->at(plane));
 		tiltedpos_y = (TMath::Sin(alpha) * x2->at(plane)) + (TMath::Cos(alpha) * y2->at(plane));
 		if (tiltedpos_x >= XCutmax || tiltedpos_x <= XCutmin || tiltedpos_y >= YCutmax || tiltedpos_y <= YCutmin) {	// excluding hit out of cut and on masked channels
 //			printf("Hit at %f,%f, excluded.\n", tiltedpos_x, tiltedpos_y);
 			continue;
 		}
+		n_tracks_unmask++;
+		if (x->size() > 0)
+			n_hits_unmask++;
+
+		h_strips_hitx->Fill(tiltedpos_x, fileP->m_Threshold);
 		// Fill hit in x histo
+		int flag = 0;
 		closest_strip = (int)ActiveStrips.getMin();
 		d = tiltedpos_x - (Dxcentering + (closest_strip)*p);
-		for (int strip = (int)ActiveStrips.getMin()+1;strip < (int)ActiveStrips.getMax();strip++)
+		for (int strip = (int)ActiveStrips.getMin() + 1;strip < (int)ActiveStrips.getMax();strip++)
 			if (abs(tiltedpos_x - (Dxcentering + (strip)*p)) < abs(d)) {
 				closest_strip = strip;
 				d = tiltedpos_x - (Dxcentering + (strip)*p);
 			}
 		if (isMasked(closest_strip) || closest_strip >= (ActiveStrips.getMin() + ((int)(ActiveStrips.getMax() - ActiveStrips.getMin()) / 3) * 3) || (closest_strip > ActiveStrips.getMax()) || (closest_strip < ActiveStrips.getMin())) {
-//			printf("- Hit of track %d at %f around strip %d removed.\n", i,tiltedpos_x,closest_strip);
+			//			printf("- Hit of track %d at %f around strip %d removed.\n", i,tiltedpos_x,closest_strip);
 		}
 		else {
-			id_inclu = ((int)((closest_strip - ActiveStrips.getMin()) - ((int)((closest_strip - ActiveStrips.getMin()) / 3)) * 3))-1;
+			n_tracks++;
+			id_inclu = ((int)((closest_strip - ActiveStrips.getMin()) - ((int)((closest_strip - ActiveStrips.getMin()) / 3)) * 3)) - 1;
 			h_hitmap_m26->Fill(tiltedpos_x, tiltedpos_y);
 			if (x->size() == 0)
 				h_hitmap_losthits->Fill(tiltedpos_x, tiltedpos_y);
-			else {
-				for (int id_hit = 0; id_hit < x->size(); id_hit++)
-					if ((isMasked((int)x->at(id_hit)) || x->at(id_hit) >= (ActiveStrips.getMin() + ((int)(ActiveStrips.getMax() - ActiveStrips.getMin()) / 3) * 3) || (x->at(id_hit) > ActiveStrips.getMax()) || (x->at(id_hit) < ActiveStrips.getMin())) == 0) {	// excluding hit out of cut and on masked channels
-						h_hitmap_losthits->Fill(tiltedpos_x, tiltedpos_y);
-						printf("-(id,strip)= %d, %f\n", id_hit, x->at(id_hit));
-					}
+			else {// case that we have hit but false
+//				for (int id_hit = 0; id_hit < x->size(); id_hit++)
+//					if (isMasked((int)x->at(id_hit)) || x->at(id_hit) >= (ActiveStrips.getMin() + ((int)(ActiveStrips.getMax() - ActiveStrips.getMin()) / 3) * 3) || (x->at(id_hit) > ActiveStrips.getMax()) || (x->at(id_hit) < ActiveStrips.getMin())) {
+//						h_hitmap_losthits->Fill(tiltedpos_x, tiltedpos_y);
+//						printf("-(id,strip)= %d, %f\n", id_hit, x->at(id_hit));
+//					}
 			}
 			h_hitx->Fill(d + (id_inclu)*p, fileP->m_Threshold);
-			fprintf(filetxt,"- Track: (xposition,yposition)=%f , %f \t (closest strip, stripinclu, distance)=%d , %d, %f)\n", tiltedpos_x, tiltedpos_y, closest_strip, id_inclu, d);
+			h_mod1_hitx->Fill(d, fileP->m_Threshold);
+			h_clu->Fill(d, x->size());
+			for (int id_hit = 0; id_hit < x->size(); id_hit++) {
+				if ((x->at(id_hit) == closest_strip || x->at(id_hit) == (closest_strip + 1) || x->at(id_hit) == (closest_strip - 1))) {
+					h_triplet->Fill(d + (id_inclu)*p, fileP->m_Threshold);
+					break;
+				}
+			}
+			fprintf(filetxt, "- Track: (xposition,yposition)=%f , %f \t (closest strip, stripinclu, distance)=%d , %d, %f)\n", tiltedpos_x, tiltedpos_y, closest_strip, id_inclu, d);
 		}
 
-		int flag = 0;	// for counting hits withour considering multiplicity on h_hitmap_DUT
+		flag = 0;	// for counting hits withour considering multiplicity on h_hitmap_DUT
 		for (int id_hit = 0; id_hit < x->size(); id_hit++) {
 			if (isMasked((int)x->at(id_hit)) || x->at(id_hit) >= (ActiveStrips.getMin() + ((int)(ActiveStrips.getMax() - ActiveStrips.getMin()) / 3) * 3) || (x->at(id_hit) > ActiveStrips.getMax()) || (x->at(id_hit) < ActiveStrips.getMin()))	// excluding hit out of cut and on masked channels
 				continue;
+			if ((int)x->at(id_hit) == stripOI)
+				h_stripOI->Fill(tiltedpos_x, fileP->m_Threshold);
+
+			id_inclu = ((int)((x->at(id_hit) - ActiveStrips.getMin()) - ((int)((x->at(id_hit) - ActiveStrips.getMin()) / 3)) * 3)) - 1;
+			d = tiltedpos_x - (Dxcentering + (x->at(id_hit))*p);
+
 			h_hitmap_DUT_multiple->Fill(tiltedpos_x, tiltedpos_y);
 			if (flag == 0) {
+				n_hits++;
 				h_hitmap_DUT->Fill(tiltedpos_x, tiltedpos_y);
 				flag++;
 			}
-			id_inclu = ((int)((x->at(id_hit) - ActiveStrips.getMin()) - ((int)((x->at(id_hit) - ActiveStrips.getMin()) / 3)) * 3))-1;
+			h_mod1->Fill(d, fileP->m_Threshold);
 			switch (id_inclu) {
 			case -1:
-				h_neighbleft->Fill(tiltedpos_x - (Dxcentering + (x->at(id_hit))*p) + (id_inclu)*p, fileP->m_Threshold);
+				h_neighbleft->Fill(d + (id_inclu)*p, fileP->m_Threshold);
 				break;
 			case 0:
-				h_seed->Fill(tiltedpos_x - (Dxcentering + (x->at(id_hit))*p) + (id_inclu)*p, fileP->m_Threshold);
+				h_seed->Fill(d + (id_inclu)*p, fileP->m_Threshold);
 				break;
 			case +1:
-				h_neighbright->Fill(tiltedpos_x - (Dxcentering + (x->at(id_hit))*p) + (id_inclu)*p, fileP->m_Threshold);
+				h_neighbright->Fill(d + (id_inclu)*p, fileP->m_Threshold);
 				break;
 			default:
 				perror("process_file(): id_inclu out of range.");
 				break;
 			}
-			fprintf(filetxt, "\t- Hit: (xposition,yposition)=%f , %f \t (strip, stripinclu, multiplicity)=%f , %d , %d)\n", tiltedpos_x, tiltedpos_y, x->at(id_hit), id_inclu, id_hit);
-//			printf("- (x, id, tilte pos x, id_inclu,closest_strip,d) = (%f, %f, %f, %d,%d,%f)\n", x2->at(plane), x->at(id_hit), tiltedpos_x, id_inclu,closest_strip,d);
-//			printf("- tiltedpos_x - (x_seedcenter + (x->at(id_hit) - ActiveStrips.getMin())*p + 0)  =  %f - (%f + (%f - %d)*%f + 0) = %f\n", tiltedpos_x, x_seedcenter, x->at(id_hit), ActiveStrips.getMin(),p, tiltedpos_x - (x_seedcenter + (x->at(id_hit) - ActiveStrips.getMin())*p + 0));
+			fprintf(filetxt, "\t- Hit: (xposition,yposition)=%f , %f \t (strip, stripinclu, distance, multiplicity)=%f , %d , %d)\n", tiltedpos_x, tiltedpos_y, x->at(id_hit), id_inclu, d, id_hit);
+			//			printf("- (x, id, tilte pos x, id_inclu,closest_strip,d) = (%f, %f, %f, %d,%d,%f)\n", x2->at(plane), x->at(id_hit), tiltedpos_x, id_inclu,closest_strip,d);
+			//			printf("- tiltedpos_x - (x_seedcenter + (x->at(id_hit) - ActiveStrips.getMin())*p + 0)  =  %f - (%f + (%f - %d)*%f + 0) = %f\n", tiltedpos_x, x_seedcenter, x->at(id_hit), ActiveStrips.getMin(),p, tiltedpos_x - (x_seedcenter + (x->at(id_hit) - ActiveStrips.getMin())*p + 0));
 		}
 	}
-	// Efficiency computation
-	h_neighbleft_eff->Divide(h_neighbleft,h_hitx);
-	h_neighbright_eff->Divide(h_neighbright,h_hitx);
-	h_seed_eff->Divide(h_seed,h_hitx);
 
+	// Efficiency computation
+	h_neighbleft_eff->Divide(h_neighbleft, h_hitx);
+	h_neighbright_eff->Divide(h_neighbright, h_hitx);
+	h_seed_eff->Divide(h_seed, h_hitx);
+	h_mod1_eff->Divide(h_mod1, h_mod1_hitx);
+	h_stripOI_eff->Divide(h_stripOI, h_strips_hitx);
+	h_triplet_eff->Divide(h_triplet, h_hitx);
+	printf("- (Total tracks,hits, efficiency)=(%d, %d, %f).\n", (n_tracks), (n_hits), (double)(((double)(n_hits)) / ((double)(n_tracks))));
+	printf("- (Total tracks,hits, efficiency) no mask=(%d, %d, %f).\n", (n_tracks_unmask), (n_hits_unmask), (double)((double)(n_hits_unmask)) / ((double)(n_tracks_unmask)));
+	h_TOTTracks->Fill(fileP->m_Threshold, (double)(n_tracks));
+	h_TOTTracks_unmask->Fill(fileP->m_Threshold, (double)(n_tracks_unmask));
+	h_TOTOccupancy->Fill(fileP->m_Threshold, (double)(n_hits));
+	h_TOTOccupancy_unmask->Fill(fileP->m_Threshold, (double)(n_hits_unmask));
+	h_TOTScurve->Divide(h_TOTOccupancy, h_TOTTracks);
+	h_TOTScurve_unmask->Divide(h_TOTOccupancy_unmask, h_TOTTracks_unmask);
+	// Errors
+	for (int i = 0;i < h_seed->GetXaxis()->GetNbins();i++)
+		for (int j = 0;j < h_seed->GetYaxis()->GetNbins();j++) {
+			h_seed->SetBinError(i, j, sqrt(h_seed->GetBinContent(i, j)));
+			h_neighbleft->SetBinError(i, j, sqrt(h_neighbleft->GetBinContent(i, j)));
+			h_neighbright->SetBinError(i, j, sqrt(h_neighbright->GetBinContent(i, j)));
+			h_hitx->SetBinError(i, j, sqrt(h_hitx->GetBinContent(i, j)));
+			if (h_hitx->GetBinContent(i, j) == 0)
+				continue;
+			h_seed_eff->SetBinError(i, j, h_seed->GetBinContent(i, j) / h_hitx->GetBinContent(i, j)*sqrt(1 / h_seed->GetBinContent(i, j) + 1 / h_hitx->GetBinContent(i, j)));
+			h_neighbleft_eff->SetBinError(i, j, h_neighbleft->GetBinContent(i, j) / h_hitx->GetBinContent(i, j)*sqrt((1. / h_neighbleft->GetBinContent(i, j)) + (1. / h_hitx->GetBinContent(i, j))));
+			h_neighbright_eff->SetBinError(i, j, h_neighbright->GetBinContent(i, j) / h_hitx->GetBinContent(i, j)*sqrt((1. / h_neighbright->GetBinContent(i, j)) + (1. / h_hitx->GetBinContent(i, j))));
+		}
+	for (int i = 0;i < h_TOTTracks->GetXaxis()->GetNbins();i++) {
+		h_TOTTracks->SetBinError(i, sqrt(h_TOTTracks->GetBinContent(i)));
+		h_TOTTracks_unmask->SetBinError(i, sqrt(h_TOTTracks_unmask->GetBinContent(i)));
+		h_TOTOccupancy->SetBinError(i, sqrt(h_TOTOccupancy->GetBinContent(i)));
+		h_TOTOccupancy_unmask->SetBinError(i, sqrt(h_TOTOccupancy_unmask->GetBinContent(i)));
+		if (h_TOTTracks->GetBinContent(i) != 0)
+			h_TOTScurve->SetBinError(i, h_TOTOccupancy->GetBinContent(i) / h_TOTTracks->GetBinContent(i)*sqrt((1. / h_TOTOccupancy->GetBinContent(i)) + (1. / h_TOTTracks->GetBinContent(i))));
+		if (h_TOTTracks_unmask->GetBinContent(i) != 0)
+			h_TOTScurve_unmask->SetBinError(i, h_TOTOccupancy_unmask->GetBinContent(i) / h_TOTTracks_unmask->GetBinContent(i)*sqrt((1. / h_TOTOccupancy_unmask->GetBinContent(i)) + (1. / h_TOTTracks_unmask->GetBinContent(i))));
+	}
+	// Interpolation and filtering
+	int jnext = 1;
+
+	for (int i = 0;i < h_seed_eff->GetXaxis()->GetNbins();i++)
+		h_seed_eff_interp1->SetBinContent(i, 1,1.);
+	for (int i = 0;i < h_seed_eff->GetXaxis()->GetNbins();i++)
+		h_seed_eff_interp1->SetBinContent(i, h_seed_eff->GetXaxis()->GetNbins()-1, 0.);
+
+	for (int i = 0;i < h_seed_eff->GetXaxis()->GetNbins();i++) {
+		for (int j = 1;j < h_seed_eff->GetYaxis()->GetNbins();j++) {
+			if (h_seed_eff->GetBinContent(i, j) != 0 || j== (h_seed_eff->GetXaxis()->GetNbins() - 1)) {
+				h_seed_eff_interp1->SetBinContent(i,j, h_seed_eff->GetBinContent(i, j));
+				h_seed_eff_interp1->SetBinError(i, j, h_seed_eff->GetBinError(i, j));
+				for (int k = jnext;k < j;k++) {
+					h_seed_eff_interp1->SetBinContent(i, k, h_seed_eff_interp1->GetBinContent(i, jnext) + (h_seed_eff_interp1->GetXaxis()->GetBinCenter(k)- h_seed_eff_interp1->GetXaxis()->GetBinCenter(jnext))*(h_seed_eff_interp1->GetBinContent(i, jnext) - h_seed_eff_interp1->GetBinContent(i, j)) / (h_seed_eff_interp1->GetXaxis()->GetBinCenter(jnext) - h_seed_eff_interp1->GetXaxis()->GetBinCenter(j)));
+				}
+				jnext = j;
+			}
+		}
+		jnext = 1;
+	}
+	double avg = 0;
+	int k = 0;
+	for (int i = 0;i < h_seed_eff_interp1->GetXaxis()->GetNbins();i++) {
+		for (int j = 1;j < (int)(Nfilt / 2)+1;j++) {
+			avg = 0;
+			for (k = 1;k <(int)(Nfilt / 2)+j;k++)
+				avg += h_seed_eff_interp1->GetBinContent(i, k);
+			avg /= (k-1);
+			h_seed_eff_interp1filt->SetBinContent(i,j, avg);
+		}
+		for (int j = (int)(Nfilt / 2)+1 ;j < h_seed_eff_interp1->GetYaxis()->GetNbins()-(int)(Nfilt / 2);j++) {
+			avg = 0;
+			for (k = 0;k < Nfilt;k++)
+				avg += h_seed_eff_interp1->GetBinContent(i,j +1 +  k - ((int)(Nfilt / 2)));
+			avg /= (k);
+			h_seed_eff_interp1filt->SetBinContent(i,j,avg);
+		}
+		for (int j = h_seed_eff_interp1->GetYaxis()->GetNbins() - (int)(Nfilt / 2);j < h_seed_eff_interp1->GetYaxis()->GetNbins()-1;j++) {
+			avg = 0;
+			for (k = 0;k <Nfilt-(j-(h_seed_eff_interp1->GetYaxis()->GetNbins() - (int)(Nfilt / 2)));k++)
+				avg += h_seed_eff_interp1->GetBinContent(i, j + k - (int)(Nfilt / 2));
+			avg /= (k);
+			h_seed_eff_interp1filt->SetBinContent(i, j, avg);
+		}
+	}
+
+	// Distributions
+	double effseed_before = 0;
+	double effneighbleft_before = 0;
+	double effneighbright_before = 0;
+	double effmod1_before = 0;
+	double efffilt_before = 0;
+	double efferrseed_before = 0;
+	double efferrneighbleft_before = 0;
+	double efferrneighbright_before = 0;
+	double efferrmod1_before = 0;
+	double efferrfilt_before = 0;
+	double thseed_before=0;
+	double thneighbleft_before = 0;
+	double thneighbright_before = 0;
+	double thmod1_before = 0;
+	double thfilt_before = 0;
+	double Dth, Deff;
+
+	for (int i = 0;i < h_seed_eff->GetXaxis()->GetNbins();i++) {
+		effseed_before = 0;
+		effneighbleft_before = 0;
+		effneighbright_before = 0;
+		effmod1_before = 0;
+		efffilt_before = 0;
+		efferrseed_before = 0;
+		efferrneighbleft_before = 0;
+		efferrneighbright_before = 0;
+		efferrmod1_before = 0;
+		efferrfilt_before = 0;
+		thseed_before = 0;
+		thneighbleft_before = 0;
+		thneighbright_before = 0;
+		thmod1_before = 0;
+		thfilt_before = 0;
+		for (int j = 0;j < h_seed_eff->GetYaxis()->GetNbins();j++) {
+			if (h_seed_eff->GetBinContent(i, j)!=0) {
+				Dth = h_seed_eff->GetYaxis()->GetBinCenter(j) - thseed_before;
+				Deff = h_seed_eff->GetBinContent(i,j)- effseed_before;
+				h_distr_seed->SetBinContent(i, h_distr_seed->GetYaxis()->FindBin((double)(thseed_before + Dth / 2)), -Deff/Dth);
+				h_distr_seed->SetBinError(i, h_distr_seed->GetYaxis()->FindBin((double)(thseed_before + Dth / 2)), 1 / Dth*sqrt(pow(h_seed_eff->GetBinError(i, j),2)+ pow(efferrseed_before, 2)));
+				efferrseed_before = h_seed_eff->GetBinError(i, j);
+				thseed_before = h_seed_eff->GetYaxis()->GetBinCenter(j);
+				effseed_before = h_seed_eff->GetBinContent(i, j);
+			}
+			if (h_neighbleft_eff->GetBinContent(i, j)!=0) {
+				Dth = h_neighbleft_eff->GetYaxis()->GetBinCenter(j) - thneighbleft_before;
+				Deff = h_neighbleft_eff->GetBinContent(i, j) - effneighbleft_before;
+				h_distr_neighbleft->SetBinContent(i,h_distr_neighbleft->GetYaxis()->FindBin((double)(thneighbleft_before + Dth / 2)), -Deff / Dth);
+				h_distr_neighbleft->SetBinError(i,h_distr_neighbleft->GetYaxis()->FindBin((double)(thneighbleft_before + Dth / 2)), 1 / Dth*sqrt(pow(h_neighbleft_eff->GetBinError(i, j), 2) + pow(efferrneighbleft_before, 2)));
+				effneighbleft_before = h_neighbleft_eff->GetBinContent(i, j);
+				thneighbleft_before = h_neighbleft_eff->GetYaxis()->GetBinCenter(j);
+				efferrneighbleft_before = h_neighbleft_eff->GetBinError(i, j);
+			}
+			if (h_neighbright_eff->GetBinContent(i, j)!=0) {
+				Dth = h_neighbright_eff->GetYaxis()->GetBinCenter(j) - thneighbright_before;
+				Deff = h_neighbright_eff->GetBinContent(i, j) - effneighbright_before;
+				h_distr_neighbright->SetBinContent(i,h_distr_neighbright->GetYaxis()->FindBin((double)(thneighbright_before + Dth / 2)), -Deff / Dth);
+				h_distr_neighbright->SetBinError(i,h_distr_neighbright->GetYaxis()->FindBin((double)(thneighbright_before + Dth / 2)), 1/Dth*sqrt(pow(h_neighbright_eff->GetBinError(i, j), 2) + pow(efferrneighbright_before, 2)));
+				effneighbright_before = h_neighbright_eff->GetBinContent(i, j);
+				thneighbright_before = h_neighbright_eff->GetYaxis()->GetBinCenter(j);
+				efferrneighbright_before = h_neighbright_eff->GetBinError(i, j);
+			}
+			if (h_mod1_eff->GetBinContent(i, j) != 0) {
+				Dth = h_mod1_eff->GetYaxis()->GetBinCenter(j) - thmod1_before;
+				Deff = h_mod1_eff->GetBinContent(i, j) - effmod1_before;
+				h_distr_mod1->SetBinContent(i, h_distr_mod1->GetYaxis()->FindBin((double)(thmod1_before + Dth / 2)), -Deff / Dth);
+				h_distr_mod1->SetBinError(i, h_distr_mod1->GetYaxis()->FindBin((double)(thmod1_before + Dth / 2)), 1 / Dth*sqrt(pow(h_mod1_eff->GetBinError(i, j), 2) + pow(efferrmod1_before, 2)));
+				effmod1_before = h_mod1_eff->GetBinContent(i, j);
+				thmod1_before = h_mod1_eff->GetYaxis()->GetBinCenter(j);
+				efferrmod1_before = h_mod1_eff->GetBinError(i, j);
+			}
+			if (h_seed_eff_interp1filt->GetBinContent(i, j) != 0) {
+				Dth = h_seed_eff_interp1filt->GetYaxis()->GetBinCenter(j) - thfilt_before;
+				Deff = h_seed_eff_interp1filt->GetBinContent(i, j) - efffilt_before;
+				h_distr_filt->SetBinContent(i, h_distr_filt->GetYaxis()->FindBin((double)(thfilt_before + Dth / 2)), -Deff / Dth);
+				h_distr_filt->SetBinError(i, h_distr_filt->GetYaxis()->FindBin((double)(thfilt_before + Dth / 2)), 1 / Dth*sqrt(pow(h_seed_eff_interp1filt->GetBinError(i, j), 2) + pow(efferrfilt_before, 2)));
+				efffilt_before = h_seed_eff_interp1filt->GetBinContent(i, j);
+				thfilt_before = h_seed_eff_interp1filt->GetYaxis()->GetBinCenter(j);
+				efferrfilt_before = h_seed_eff_interp1filt->GetBinError(i, j);
+			}
+
+		}
+	}
+
+	double eff_before = 0;
+	double th_before = 0;
+	double efferr_before = 0;
+
+	for (int i = 0;i < h_TOTScurve->GetXaxis()->GetNbins();i++) {
+		if (h_TOTScurve->GetBinContent(i)!=0) {
+				Dth = h_TOTScurve->GetXaxis()->GetBinCenter(i) - th_before;
+				th_before = h_TOTScurve->GetXaxis()->GetBinCenter(i);
+				Deff = h_TOTScurve->GetBinContent(i) - eff_before;
+				eff_before = h_TOTScurve->GetBinContent(i);
+				h_distr->SetBinContent(h_distr->GetXaxis()->FindBin(th_before+ Dth/2), -Deff / Dth);
+				h_distr->SetBinError(h_distr->GetXaxis()->FindBin(th_before + Dth / 2), 1 / Dth*sqrt(pow(h_TOTScurve->GetBinError(i), 2) + pow(efferr_before, 2)));
+				efferr_before = h_TOTScurve->GetBinError(i);
+			}
+	}
+	// Convolution
+	double conv;
+	for (int i = 0;i < h_distr_seed->GetXaxis()->GetNbins();i++) {
+		for (int j = 0;j < h_clustered->GetYaxis()->GetNbins();j++) {
+			conv = 0;
+			for (int tao = 0;tao < h_distr_seed->GetYaxis()->GetNbins();tao++) {
+				if ((j-tao) >= 0 && (j-tao) < h_distr_neighbleft->GetYaxis()->GetNbins())
+					if (h_distr_seed->GetBinContent(i, tao)>0 && h_distr_neighbleft->GetBinContent(i, j - tao)>0)
+						conv += h_distr_seed->GetBinContent(i, tao)*h_distr_neighbleft->GetBinContent(i, j-tao);
+			}
+			h_clustered_left->SetBinContent(i,j, conv);
+		}
+		for (int j = 0;j < h_clustered_left->GetYaxis()->GetNbins();j++) {
+			conv = 0;
+			for (int tao = 0;tao < h_distr_neighbright->GetYaxis()->GetNbins();tao++) {
+				if ((j - tao) >= 0 && (j - tao) < h_distr_neighbright->GetYaxis()->GetNbins())
+					if (h_clustered_left->GetBinContent(i,tao)>0 && h_distr_neighbright->GetBinContent(i, j - tao)>0)
+						conv += h_clustered_left->GetBinContent(i,tao)*h_distr_neighbright->GetBinContent(i, j - tao);
+			}
+			h_clustered->SetBinContent(i, j, conv);
+		}
+	}
+
+	
 #ifdef _DEBUG
 	new TCanvas();
 	h_neighbleft->Draw("colz");
@@ -1936,13 +2226,38 @@ printf("- Max correlated events for run %d = %d.\n", (int)fileP->m_runNumber, n_
 	h_neighbright->Write("h_neighbright", 2);
 	h_seed->Write("h_seed",2);
 	h_hitx->Write("h_hitx", 2);
+	h_mod1_hitx->Write("h_mod1_hitx", 2);
+	h_mod1->Write("h_mod1", 2);
+	h_mod1_eff->Write("h_mod1_eff", 2);
 	h_neighbleft_eff->Write("h_neighbleft_eff", 2);
 	h_neighbright_eff->Write("h_neighbright_eff", 2);
+	h_TOTTracks->Write("h_TOTTracks", 2);
+	h_TOTTracks_unmask->Write("h_TOTTracks_unmask", 2);
+	h_TOTOccupancy->Write("h_TOTOccupancy", 2);
+	h_TOTOccupancy_unmask->Write("h_TOTOccupancy_unmask", 2);
+	h_TOTScurve->Write("h_TOTScurve", 2);
+	h_TOTScurve_unmask->Write("h_TOTScurve_unmask", 2);
 	h_seed_eff->Write("h_seed_eff",2);
+	h_seed_eff_interp1->Write("h_seed_eff_interp1", 2);
+	h_seed_eff_interp1filt->Write("h_seed_eff_interp1filt", 2);
 	h_hitmap_m26->Write("h_hitmap_m26");
 	h_hitmap_DUT->Write("h_hitmap_DUT");
 	h_hitmap_DUT_multiple->Write("h_hitmap_DUT_multiple");
 	h_hitmap_losthits->Write("h_hitmap_losthits");
+	h_distr_neighbleft->Write("h_distr_neighbleft",2);
+	h_distr_seed->Write("h_distr_seed",2);
+	h_distr_neighbright->Write("h_distr_neighbright", 2);
+	h_distr->Write("h_distr", 2);
+	h_distr_mod1->Write("h_distr_mod1", 2);
+	h_distr_filt->Write("h_distr_filt", 2);
+	h_clustered_left->Write("h_clustered_left", 2);
+	h_clustered->Write("h_clustered", 2);
+	h_clu->Write("h_clu");
+	h_stripOI->Write("h_stripOI", 2);
+	h_stripOI_eff->Write("h_stripOI_eff", 2);
+	h_strips_hitx->Write("h_strips_hitx", 2);
+	h_triplet->Write("h_triplet", 2);
+	h_triplet_eff->Write("h_triplet_eff", 2);
 #endif
 	fclose(filetxt);
 	
@@ -1988,6 +2303,181 @@ void s_process_collection_modulo_forPositions::saveHistograms(TFile* outPutFile 
 
 std::string s_process_collection_modulo_forPositions::get_suffix() const {
 	return "Modulo_forPositions";
+}
+//////////////////////////////////////////////
+//////////////////////////// Pedestal
+s_process_collection_pedestal::s_process_collection_pedestal(Parameter_ref par) {
+
+	m_dummy = new TFile("dummy1.root", "recreate");
+
+	h_TOTEvents = new TH1D("h_TOTEvents", "h_TOTEvents", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTOccupancy = new TH1D("h_TOTOccupancy", "h_TOTOccupancy", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTOccupancy_unmask = new TH1D("h_TOTOccupancy_unmask", "S-h_TOTOccupancy_unmask, unmasked", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTScurve = new TH1D("h_TOTScurve", "S-curve", N_thresholdbins, min_threshold, max_threshold);
+	h_TOTScurve_unmask = new TH1D("h_TOTScurve_unmask", "S-curve, unmasked", N_thresholdbins, min_threshold, max_threshold);
+	h_distr = new TH1D("h_distr", "h_distr", N_thresholdbins, min_threshold, max_threshold);
+
+	Mask.push_back(785);	// TO DO: read from gear
+	Mask.push_back(784);	// TO DO: read from gear
+	Mask.push_back(820);	// TO DO: read from gear
+	Mask.push_back(821);	// TO DO: read from gear
+	Mask.push_back(822);	// TO DO: read from gear
+	Mask.push_back(823);	// TO DO: read from gear
+	Mask.push_back(824);	// TO DO: read from gear
+	Mask.push_back(863);	// TO DO: read from gear
+	Mask.push_back(864);	// TO DO: read from gear
+	Mask.push_back(865);	// TO DO: read from gear
+	Mask.push_back(866);	// TO DO: read from gear
+
+}
+
+s_process_collection_pedestal::~s_process_collection_pedestal() {
+
+}
+
+bool s_process_collection_pedestal::process_file(FileProberties* fileP) {
+
+	m_plotCollection = sct_corr::create_plot_collection();
+	m_plotCollection->addFile(fileP->getTfile());
+	m_plotCollection->setOutputFile(m_dummy);
+	m_file_fitter = std::make_shared<sct_files::fitter_file>(m_plotCollection, get_gear());
+
+	auto pl = m_file_fitter->get_collection();
+
+	printf("%s\n", TFile::CurrentFile()->GetName());
+	printf("- Filename: %s.\n", fileP->getTfile()->GetName());
+
+	// Load of trees and initializations
+	TTree *tree = (TTree*)fileP->getTfile()->Get("szData");
+	std::vector<double > *ID = 0;
+	std::vector<double > *x = 0;
+	std::vector<double > *y = 0;
+	Int_t event_nr = 0;
+
+	tree->SetBranchAddress("ID", &ID);
+	tree->SetBranchAddress("x", &x);
+	tree->SetBranchAddress("y", &y);
+	tree->SetBranchAddress("event_nr", &event_nr);
+	int n_entries = tree->GetEntries();
+
+	auto ActiveStrips = get_xml_input()->globalConfig().AvtiveStrips();
+
+	int n_events = 0;
+	int n_hits = 0;
+	int n_hits_unmask = 0;
+	bool flag=0;
+
+	// Modulo 3
+	for (int i = 0; i < n_entries; i++) {
+		tree->GetEntry(i);
+		n_events++;
+		flag = 0;
+		for (int plane = 0;plane < ID->size();plane++) {
+			if (ID->at(plane) == 8 && !flag) {
+				n_hits_unmask++;
+				flag=1;
+			}
+		}
+		flag = 0;	// for counting hits withour considering multiplicity on h_hitmap_DUT
+		for (int id_hit = 0; id_hit < x->size(); id_hit++) {
+			if (ID->at(id_hit) != 8)
+				continue;
+			if (isMasked((int)x->at(id_hit)) || x->at(id_hit) >= (ActiveStrips.getMin() + ((int)(ActiveStrips.getMax() - ActiveStrips.getMin()) / 3) * 3) || (x->at(id_hit) > ActiveStrips.getMax()) || (x->at(id_hit) < ActiveStrips.getMin()))	// excluding hit out of cut and on masked channels
+				continue;
+			if (!flag) {
+				n_hits++;
+				flag=1;
+			}
+		}
+	}
+
+	// Efficiency computation
+	h_TOTEvents->Fill(fileP->m_Threshold, (double)(n_events));
+	h_TOTOccupancy->Fill(fileP->m_Threshold, (double)(n_hits));
+	h_TOTOccupancy_unmask->Fill(fileP->m_Threshold, (double)(n_hits_unmask));
+	h_TOTScurve->Divide(h_TOTOccupancy, h_TOTEvents);
+	h_TOTScurve_unmask->Divide(h_TOTOccupancy_unmask, h_TOTEvents);
+	// Errors
+	for (int i = 0;i < h_TOTEvents->GetXaxis()->GetNbins();i++) {
+		h_TOTEvents->SetBinError(i, sqrt(h_TOTEvents->GetBinContent(i)));
+		h_TOTOccupancy->SetBinError(i, sqrt(h_TOTOccupancy->GetBinContent(i)));
+		h_TOTOccupancy_unmask->SetBinError(i, sqrt(h_TOTOccupancy_unmask->GetBinContent(i)));
+		if (h_TOTEvents->GetBinContent(i) != 0) {
+			h_TOTScurve->SetBinError(i, h_TOTOccupancy->GetBinContent(i) / h_TOTEvents->GetBinContent(i)*sqrt((1. / h_TOTOccupancy->GetBinContent(i)) + (1. / h_TOTEvents->GetBinContent(i))));
+			h_TOTScurve_unmask->SetBinError(i, h_TOTOccupancy_unmask->GetBinContent(i) / h_TOTEvents->GetBinContent(i)*sqrt((1. / h_TOTOccupancy_unmask->GetBinContent(i)) + (1. / h_TOTEvents->GetBinContent(i))));
+		}
+	}
+	printf("- Threshold, (Events,hits)=%f, (%d,%d).\n", fileP->m_Threshold, n_events, n_hits);
+	// Distributions
+	double Dth = 0;
+	double Deff = 0;
+	double eff_before = 0;
+	double th_before = 0;
+	double efferr_before = 0;
+
+	for (int i = 0;i < h_TOTScurve->GetXaxis()->GetNbins();i++) {
+		if (h_TOTScurve->GetBinContent(i) != 0) {
+			Dth = h_TOTScurve->GetXaxis()->GetBinCenter(i) - th_before;
+			th_before = h_TOTScurve->GetXaxis()->GetBinCenter(i);
+			Deff = h_TOTScurve->GetBinContent(i) - eff_before;
+			eff_before = h_TOTScurve->GetBinContent(i);
+			h_distr->SetBinContent(h_distr->GetXaxis()->FindBin(th_before + Dth / 2), -Deff / Dth);
+			h_distr->SetBinError(h_distr->GetXaxis()->FindBin(th_before + Dth / 2), 1 / Dth*sqrt(pow(h_TOTScurve->GetBinError(i), 2) + pow(efferr_before, 2)));
+			efferr_before = h_TOTScurve->GetBinError(i);
+		}
+	}
+
+#ifdef _DEBUG
+	h_TOTEvents->Write("h_TOTEvents", 2);
+	h_TOTOccupancy->Write("h_TOTOccupancy", 2);
+	h_TOTOccupancy_unmask->Write("h_TOTOccupancy_unmask", 2);
+	h_TOTScurve->Write("h_TOTScurve", 2);
+	h_TOTScurve_unmask->Write("h_TOTScurve_unmask", 2);
+	h_distr->Write("h_distr", 2);
+#endif
+
+	/*
+	m_residualEffieciency->Draw();
+	m_instripEfficiency->Draw();
+	push2outputEvent(m_outputl, *m_residualEffieciency->getEfficiency_map(), *m_residualEffieciency->get_total(), ID_t(0));
+	push2outputEvent(m_outputl, *m_instripEfficiency->getEfficiency_map(), *m_instripEfficiency->getHits(), ID_t(1));
+	*/
+	return true;
+}
+bool s_process_collection_pedestal::isMasked(int channel) {
+	for (int i = 0;i < Mask.size();i++) {
+		if (channel == Mask.at(i))
+			return true;
+	}
+	return false;
+}
+
+
+void s_process_collection_pedestal::saveHistograms(TFile* outPutFile /*= nullptr */, xmlImputFiles::MinMaxRange<double>* residual_cut /*= nullptr */) {
+
+#ifdef _DEBUG
+	new TCanvas();
+#endif
+	//	m_instripClusterSize->Draw();
+#ifdef _DEBUG
+	new TCanvas();
+#endif // _DEBUG
+	//	m_instripEfficiency->Draw();
+#ifdef _DEBUG
+	new TCanvas();
+#endif // _DEBUG
+	//	m_residualEffieciency->Draw();
+
+	/*	if (outPutFile) {
+	outPutFile->Add(m_instripClusterSize->getHistogram());
+	outPutFile->Add(m_instripEfficiency->getEfficiency_map());
+	outPutFile->Add(m_residualEffieciency->getEfficiency_map());
+	outPutFile->Add(m_residualEffieciency->get_total());
+	}*/
+}
+
+std::string s_process_collection_pedestal::get_suffix() const {
+	return "pedestal";
 }
 ///////////////////////////// Correlation check
 
@@ -2082,6 +2572,18 @@ bool s_process_collection_correlation_check::process_file(FileProberties* fileP)
 	tree2->SetBranchAddress("theta", &theta);
 	int n_entries = tree->GetEntries();
 	int n_entries2 = tree2->GetEntries();
+	// FEi4
+	TTree *tree3 = (TTree*)fileP->getTfile()->Get("zsdata_apix");
+	std::vector<double > *ID3 = 0;
+	std::vector<double > *x3 = 0;
+	std::vector<double > *y3 = 0;
+	Int_t event_nr3 = 0;
+	tree3->SetBranchAddress("ID", &ID3);
+	tree3->SetBranchAddress("x", &x3);
+	tree3->SetBranchAddress("y", &y3);
+	tree3->SetBranchAddress("event_nr", &event_nr3);
+	int n_entries3 = tree3->GetEntries();
+
 
 	auto ActiveStrips = get_xml_input()->globalConfig().AvtiveStrips();
 
@@ -2111,6 +2613,9 @@ bool s_process_collection_correlation_check::process_file(FileProberties* fileP)
 			plane = 0;
 			tree2->GetEntry((j*Nslot + i));
 			if (x2->size() == 0)
+				continue;
+			tree3->GetEntry((j*Nslot + i));
+			if (x3->size() == 0)
 				continue;
 			while (ID->at(0) != ID2->at(plane))
 				plane++;
@@ -2292,6 +2797,7 @@ registerProcessor("Residual_second", s_process_collection_residual_second);
 registerProcessor("Modulo_forPositions", s_process_collection_modulo_forPositions);
 registerProcessor("Correlation_check", s_process_collection_correlation_check);
 registerProcessor("Centering", s_process_collection_centering);
+registerProcessor("Pedestal", s_process_collection_pedestal);
 
 s_process_collection_residual_second::s_process_collection_residual_second(Parameter_ref par) {
 

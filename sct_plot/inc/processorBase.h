@@ -293,13 +293,13 @@ private:
 	double Dx = 0.005;	// resolution, binning [mm]		// TO DO: insert in xml file
 	double xmin = -10;// gbl min x for histos [mm] // TO DO: insert in xml file
 	double xmax = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
-	double Dy = 1;	// resolution, binning [mm]		// TO DO: insert in xml file
-	double ymin = -5;// gbl min y for histos [mm] // TO DO: insert in xml file
-	double ymax = 5;// gbl max y for histos [mm] // TO DO: insert in xml file
-	double XCutmin = -5.5;// gbl min x for histos [mm] // TO DO: insert in xml file
-	double XCutmax = 0.1;// gbl max x for histos [mm] // TO DO: insert in xml file
-	double YCutmin = -3.;// gbl min y for histos [mm] // TO DO: insert in xml file
-	double YCutmax = 3.;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double Dy = 0.01;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double ymin = -6;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double ymax = 6;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double XCutmin = -4.5;// gbl min x for histos [mm] // TO DO: insert in xml file NARROWER THAN STRIP CUT BETTER
+	double XCutmax = -0.5;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double YCutmin = -4.;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double YCutmax = +3.;// gbl max y for histos [mm] // TO DO: insert in xml file
 	std::vector<int> Mask;
 	double alpha_deg = 360 - 0.26; //angle of DUT strips vs. Mimosa/Track reference frame 0.26	// TO DO: read from gear
 	double alpha = TMath::Pi() * alpha_deg / 180;
@@ -327,6 +327,8 @@ private:
 	std::shared_ptr<sct_files::fitter_file> m_file_fitter;
 
 	// Geometrical variables
+	int Nfilt = 10;
+	int stripOI = 840;
 	double Dxcentering =0;
 	double p = 0.0745;	// pitch [mm]		// TO DO: read from gear the pitch
 	double Dx = 0.005;	// resolution, binning [mm]		// TO DO: insert in xml file
@@ -334,7 +336,7 @@ private:
 	double xmax = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
 	double xmin_corr = -15;// gbl min x for histos [mm] // TO DO: insert in xml file
 	double xmax_corr = 15;// gbl max x for histos [mm] // TO DO: insert in xml file
-	double Dy = 1;	// resolution, binning [mm]		// TO DO: insert in xml file
+	double Dy = 0.010;	// resolution, binning [mm]		// TO DO: insert in xml file
 	double ymin = -6;// gbl min y for histos [mm] // TO DO: insert in xml file
 	double ymax = 6;// gbl max y for histos [mm] // TO DO: insert in xml file
 	double XCutmin = -4.5;// gbl min x for histos [mm] // TO DO: insert in xml file NARROWER THAN STRIP CUT BETTER
@@ -342,13 +344,13 @@ private:
 	double YCutmin = -4.;// gbl min y for histos [mm] // TO DO: insert in xml file
 	double YCutmax = +3.;// gbl max y for histos [mm] // TO DO: insert in xml file
 	double min_threshold = 0;		// TO DO: insert in xml file
-	double max_threshold = 250;		// TO DO: insert in xml file
+	double max_threshold = 600;		// TO DO: insert in xml file
 	std::vector<int> Mask;
 	struct  corr { int corrrun, n_correntries;};
 	std::vector<corr> Corr;
 	struct  centering { int stripref; double x_seedcenter; };
 	std::vector<centering> Centering;
-	int N_thresholdbins = 250;		// TO DO: insert in xml file
+	int N_thresholdbins = 40;		// TO DO: insert in xml file
 	double alpha_deg = 360 - 0.26; //angle of DUT strips vs. Mimosa/Track reference frame 0.26	// TO DO: read from gear
 	double alpha = TMath::Pi() * alpha_deg / 180;
 	TTree* t_correlated_events_temp = nullptr;
@@ -357,16 +359,73 @@ private:
 	TH2D* h_seed = nullptr;
 	TH2D* h_neighbright = nullptr;
 	TH2D* h_hitx = nullptr;
+	TH2D* h_mod1_hitx = nullptr;
+	TH2D* h_mod1 = nullptr;
+	TH2D* h_mod1_eff = nullptr;
+	TH2D* h_distr_mod1 = nullptr;
 	TH2D* h_neighbleft_eff = nullptr;
 	TH2D* h_seed_eff = nullptr;
+	TH2D* h_seed_eff_interp1 = nullptr;
+	TH2D* h_seed_eff_interp1filt = nullptr;
 	TH2D* h_neighbright_eff = nullptr;
+	TH2D* h_distr_neighbleft = nullptr;
+	TH2D* h_distr_seed = nullptr;
+	TH2D* h_distr_neighbright = nullptr;
+	TH2D* h_distr_filt = nullptr;
 	TH2D* h_hitmap_DUT = nullptr;
 	TH2D* h_hitmap_m26 = nullptr;
 	TH2D* h_hitmap_DUT_multiple = nullptr;
 	TH2D* h_hitmap_losthits = nullptr;
+	TH1D* h_TOTTracks = nullptr;
+	TH1D* h_TOTTracks_unmask = nullptr;
+	TH1D* h_TOTOccupancy = nullptr;
+	TH1D* h_TOTOccupancy_unmask = nullptr;
+	TH1D* h_TOTScurve = nullptr;
+	TH1D* h_TOTScurve_unmask = nullptr;
+	TH1D* h_distr = nullptr;
+	TH2D* h_clustered = nullptr;
+	TH2D* h_clustered_left = nullptr;
+	TH2D* h_clu = nullptr;
+	TH2D* h_triplet = nullptr;
+	TH2D* h_triplet_eff = nullptr;
+
+	TH2D* h_stripOI = nullptr;
+	TH2D* h_stripOI_eff = nullptr;
+	TH2D* h_strips_hitx = nullptr;
+
 
 };
+class DllExport s_process_collection_pedestal : public sct_corr::processorBase {
+public:
+	s_process_collection_pedestal(Parameter_ref par);
+	virtual ~s_process_collection_pedestal();
 
+	virtual void saveHistograms(TFile* outPutFile = nullptr, xmlImputFiles::MinMaxRange<double>* residual_cut = nullptr) override;
+private:
+
+	virtual std::string get_suffix() const override;
+	virtual  bool process_file(FileProberties* fileP) override;
+	bool isMasked(int channel);
+
+	TFile* m_dummy = nullptr;
+
+	std::shared_ptr<sct_corr::plot_collection> m_plotCollection;
+	std::shared_ptr<sct_files::fitter_file> m_file_fitter;
+
+	// Geometrical variables
+	double min_threshold = 0;		// TO DO: insert in xml file
+	double max_threshold = 250;		// TO DO: insert in xml file
+	std::vector<int> Mask;
+	int N_thresholdbins = 250;		// TO DO: insert in xml file
+	// Histos for output
+	TH1D* h_TOTEvents = nullptr;
+	TH1D* h_TOTOccupancy = nullptr;
+	TH1D* h_TOTOccupancy_unmask = nullptr;
+	TH1D* h_TOTScurve = nullptr;
+	TH1D* h_TOTScurve_unmask = nullptr;
+	TH1D* h_distr = nullptr;
+
+};
 class DllExport s_process_collection_correlation_check : public sct_corr::processorBase {
 public:
 	s_process_collection_correlation_check(Parameter_ref par);
@@ -393,14 +452,14 @@ private:
 	double xmin_corr = -10;// gbl min x for histos [mm] // TO DO: insert in xml file
 	double xmax_corr = 10;// gbl max x for histos [mm] // TO DO: insert in xml file
 	double Dy = 1;	// resolution, binning [mm]		// TO DO: insert in xml file
-	double ymin = -5;// gbl min y for histos [mm] // TO DO: insert in xml file
-	double ymax = 5;// gbl max y for histos [mm] // TO DO: insert in xml file
-	double XCutmin = -5.5;// gbl min x for histos [mm] // TO DO: insert in xml file
-	double XCutmax = 0.1;// gbl max x for histos [mm] // TO DO: insert in xml file
-	double YCutmin = -3.;// gbl min y for histos [mm] // TO DO: insert in xml file
-	double YCutmax = 3.;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double ymin = -6;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double ymax = 6;// gbl max y for histos [mm] // TO DO: insert in xml file
+	double XCutmin = -4.5;// gbl min x for histos [mm] // TO DO: insert in xml file NARROWER THAN STRIP CUT BETTER
+	double XCutmax = -0.5;// gbl max x for histos [mm] // TO DO: insert in xml file
+	double YCutmin = -4.;// gbl min y for histos [mm] // TO DO: insert in xml file
+	double YCutmax = +3.;// gbl max y for histos [mm] // TO DO: insert in xml file
 	double min_threshold = 0;		// TO DO: insert in xml file
-	double max_threshold = 250;		// TO DO: insert in xml file
+	double max_threshold = 600;		// TO DO: insert in xml file
 	std::vector<int> Mask;
 	struct  centering { int stripref; double x_seedcenter; };
 	std::vector<centering> Centering;
